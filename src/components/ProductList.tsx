@@ -16,16 +16,16 @@ return (
                 <Link href={"/" + p.slug} className="flex flex-col gap-4" key={p._id}>
                 <div className="relative w-full h-80">
                     <Image
-                        src={p.media?.main?.image?.url || "/product.png"}
+                        src={p.media?.mainMedia?.image?.url || "/product.png"}
                         alt={p.name} fill sizes="25vw"
                         className="absolute object-cover rounded-md z-10 hover:opacity-0 transition-opacity ease duration-500" />
                     <Image
-                        src={p.media?.items?.[1]?.image?.url || p.media?.mainMedia?.image?.url || "/product.png"}
+                        src={p.media?.items[1]?.image?.url || p.media?.main?.image?.url || "/product.png"}
                         alt={p.name} fill sizes="25vw" className="absolute object-cover rounded-md" />
                 </div>
                 <div className="flex justify-between">
                     <h3 className="font-semibold">{p.name}</h3>
-                    <p className="p-1 text-sm text-gray-500">${p.actualPriceRange?.minValue?.amount}</p>
+                    <p className="p-1 text-sm text-gray-500">${p.price?.price}</p>
                 </div>
                 <div>
                     {/* <div className="text-sm text-gray-500">{p.additionalInfoSections.find((section:any) => section.title === "Short Description")?.description || "No description available" }</div> */}

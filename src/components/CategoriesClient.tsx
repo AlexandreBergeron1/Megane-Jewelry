@@ -18,23 +18,23 @@ type Props = {
 const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, colors }: Props) => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const selectedType = searchParams.get("cat");
+    const selectedCatSlug = searchParams.get("cat");
 
-    const handleTypeSelect = (id: string) => {
+    const handleTypeSelect = (slug: string) => {
         const params = new URLSearchParams(searchParams.toString());
-        params.set("cat", id);
-        params.delete("subcat"); // reset subtype on type change
+        params.set("cat", slug);
+        params.delete("subcat");
         router.push(`?${params.toString()}`);
     };
 
-    const handleSubtypeSelect = (id: string) => {
+    const handleSubtypeSelect = (slug: string) => {
         const params = new URLSearchParams(searchParams.toString());
-        params.set("subcat", id);
+        params.set("subcat", slug);
         router.push(`?${params.toString()}`);
     };
 
-    const showNecklaceSubtype = selectedType === "d46d48ed-40f4-4bf1-9958-9eec8b37a141";
-    const showBraceletSubtype = selectedType === "d891815c-5c92-4b46-bbdb-2a1b63569fff";
+    const showNecklaceSubtype = selectedCatSlug === "neckclace"; // your slug from Wix
+    const showBraceletSubtype = selectedCatSlug === "bracelet";
 
     return (
         <div className="hidden flex-col w-50 gap-10 sm:flex">
@@ -42,6 +42,25 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
             {/* Type */}
             <div className="flex flex-col gap-2">
                 <h3 className="text-md font-bold">Type</h3>
+                {/* All Products option */}
+            <div>
+            <input
+                type="radio"
+                name="type"
+                id="all"
+                className="hidden peer"
+                onChange={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                params.delete("cat");
+                params.delete("subcat");
+                router.push(`?${params.toString()}`);
+                }}
+                checked={selectedCatSlug === null}
+                />
+                <label htmlFor="all" className="cursor-pointer peer-checked:font-bold">
+                    All Products
+                </label>
+                 </div>
                 {typeParents.map((category) => (
                     <div key={category.id}>
                         <input
@@ -49,8 +68,8 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
                             name="type"
                             id={category.id}
                             className="hidden peer"
-                            onChange={() => handleTypeSelect(category.id)}
-                            checked={selectedType === category.id}
+                            onChange={() => handleTypeSelect(category.slug)}
+                            checked={selectedCatSlug === category.slug}
                         />
                         <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
                             {category.name}
@@ -70,8 +89,8 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
                                 name="subtype"
                                 id={category.id}
                                 className="hidden peer"
-                                onChange={() => handleSubtypeSelect(category.id)}
-                                checked={searchParams.get("subcat") === category.id}
+                                onChange={() => handleSubtypeSelect(category.slug)}
+                                checked={searchParams.get("subcat") === category.slug}
                             />
                             <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
                                 {category.name}
@@ -92,8 +111,8 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
                                 name="subtype"
                                 id={category.id}
                                 className="hidden peer"
-                                onChange={() => handleSubtypeSelect(category.id)}
-                                checked={searchParams.get("subcat") === category.id}
+                                onChange={() => handleSubtypeSelect(category.slug)}
+                                checked={searchParams.get("subcat") === category.slug}
                             />
                             <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
                                 {category.name}
@@ -115,10 +134,10 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
                             className="hidden peer"
                             onChange={() => {
                                 const params = new URLSearchParams(searchParams.toString());
-                                params.set("color", color.id);
+                                params.set("color", color.slug);
                                 router.push(`?${params.toString()}`);
                             }}
-                            checked={searchParams.get("color") === color.id}
+                            checked={searchParams.get("color") === color.slug}
                         />
                         <label htmlFor={color.id} className="cursor-pointer peer-checked:font-bold">
                             {color.name}

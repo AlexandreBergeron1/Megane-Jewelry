@@ -12,9 +12,24 @@ const WIX_HEADERS = {
     "wix-site-id": process.env.WIX_SITE_ID!,
 };
 
-async function getProducts(categoryId?: string) {
+async function getCategoryIdFromSlug(slug: string): Promise<string | undefined> {
+    const response = await fetch(
+        `https://www.wixapis.com/categories/v1/categories/search`,
+        {
+            method: "POST",
+            headers: WIX_HEADERS,
+            body: JSON.stringify({
+                treeReference: { appNamespace: "@wix/stores" },
+            }),
+        }
+    );
+    const data = await response.json();
+    const match = data?.categories?.find((c: any) => c.slug === slug);
+    return match?.id;
+}
+
+async function getProducts(categoryId?: string, name?: string) {
     if (categoryId) {
-        // Step 1: get product IDs in that category
         const itemsRes = await fetch(
             `https://www.wixapis.com/categories/v1/categories/${categoryId}/list-items`,
             {
@@ -31,44 +46,38 @@ async function getProducts(categoryId?: string) {
 
         if (productIds.length === 0) return [];
 
-        // Step 2: fetch products by those IDs via REST
-        const productsRes = await fetch(
-            `https://www.wixapis.com/stores/v3/products/query`,
-            {
-                method: "POST",
-                headers: WIX_HEADERS,
-                body: JSON.stringify({
-                    query: {
-                        filter: { id: { $in: productIds } },
-                    },
-                }),
-            }
-        );
+        const res = await wixServerClient.products.queryProducts()
+            .in("_id", productIds)
+            .find();
 
-        const productsData = await productsRes.json();
-        return productsData?.products ?? [];
+        const items = res.items;
+        if (name) {
+            return items.filter((p: any) =>
+                p.name?.toLowerCase().includes(name.toLowerCase())
+            );
+        }
+        return items;
     }
 
-    // No category — fetch all via REST
-    const res = await fetch(`https://www.wixapis.com/stores/v3/products/query`, {
-        method: "POST",
-        headers: WIX_HEADERS,
-        body: JSON.stringify({ query: {} }),
-    });
+    const res = await wixServerClient.products.queryProducts().find();
+    const items = res.items;
 
-    
-    const data = await res.json();
-    console.log("first product:", JSON.stringify(data?.products?.[0], null, 2));
-    return data?.products ?? [];
+    if (name) {
+        return items.filter((p: any) =>
+            p.name?.toLowerCase().includes(name.toLowerCase())
+        );
+    }
+    return items;
 }
 
 export default async function HomePage({
     searchParams,
 }: {
-    searchParams: { cat?: string; subcat?: string };
+    searchParams: { cat?: string; subcat?: string; name?: string };
 }) {
-    const categoryId = searchParams.subcat || searchParams.cat || undefined;
-    const products = await getProducts(categoryId);
+    const slug = searchParams.subcat || searchParams.cat || undefined;
+    const categoryId = slug ? await getCategoryIdFromSlug(slug) : undefined;
+    const products = await getProducts(categoryId, searchParams.name);
 
     return (
         <div>
