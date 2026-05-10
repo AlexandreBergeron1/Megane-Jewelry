@@ -1,3 +1,4 @@
+import { Lato, Playfair_Display } from "next/font/google";
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -18,6 +19,10 @@ const config: Config = {
         green: "#1D4D38",
         red: "#F35C7A",
       },
+      fonts : {
+        playfair: Playfair_Display,
+        lato: Lato,
+      }
     },
   },
   plugins: [],

@@ -19,9 +19,7 @@ const SinglePage = async ({params}:{params:{slug: string }}) => {
     if(!products.items[0]) {
         return notFound();
     }
-
     const product = products.items[0];
-
 
 return (
 <div className="px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 relative flex flex-col lg:flex-row gap-16 mt-20">
@@ -40,8 +38,7 @@ return (
                 <p className="text-gray-500 line-through text-xl">${product.price?.discountedPrice}</p>
                 </div>
             )}
-        <CustomizedProducts />
-        <AddCart />
+        {product.stock?.inStock ? (product.variants && product.productOptions ? (<CustomizedProducts productId={product._id} variants={product.variants} productOptions={product.productOptions}/>) : (<AddCart productId={product._id} variantId="00000000-0000-0000-0000-000000000000" stockNumber={product.stock?.quantity || 0}/>)) : (<div className="text-red">Out of stock</div>)}
         <Accordion product={product} />
     </div>
 </div>

@@ -5,23 +5,6 @@ import { useState } from "react";
 const ProductImages = ({items}:{items:any}) => {
 const [index, setIndex] = useState(0);
 
-    // const Images = [{ 
-    //     id:1, 
-    //     url: ""
-    // },
-    // { 
-    //     id:2, 
-    //     url: ""
-    // },
-    // { 
-    //     id:3, 
-    //     url: ""
-    // },
-    // { 
-    //     id:4, 
-    //     url: ""
-    // }];
-
     return (
         <div className="">
             <div className="h-[600px] relative">

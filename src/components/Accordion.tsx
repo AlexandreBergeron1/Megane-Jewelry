@@ -33,7 +33,7 @@ const Accordion = ({ product }: { product: any }) => {
     return (
         <div className="w-full mx-auto">
             {items.map((item: any, index: number) => (
-                <div key={index} className="border-b py-3">
+                <div key={index} className="border-b border-gray-500 py-3">
                     <button
                         onClick={() => toggle(index)}
                         className="w-full flex justify-between items-center text-left"
