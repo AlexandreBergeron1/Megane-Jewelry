@@ -1,23 +1,26 @@
 "use client"
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import { products } from "@wix/stores";
 import AddCart from "@/components/AddCart";
 
-const CustomizedProducts = ({ productId, variants, productOptions }: { productId: string; variants: products.Variant[]; productOptions: products.ProductOption[] }) => {
+const CustomizedProducts = ({ productId, variants, productOptions }: { 
+    productId: string; 
+    variants: products.Variant[]; 
+    productOptions: products.ProductOption[] 
+}) => {
     
     const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>({});
-
-    const [selectedVariants, setSelectedVariants] = useState<products.Variant>()
+    const [selectedVariants, setSelectedVariants] = useState<products.Variant>();
 
     useEffect(() => {
-        const variant = variants.find(v=>{
+        const variant = variants.find(v => {
             const variantChoices = v.choices;
             if (!variantChoices) return false;
             return Object.entries(selectedOptions).every(
                 ([key, value]) => variantChoices[key] === value
-            )
-        })
-        setSelectedVariants(variant)
+            );
+        });
+        setSelectedVariants(variant);
     }, [selectedOptions, variants]);
 
     const handleOptionSelect = (optionType: string, choice: string) => {
@@ -25,29 +28,29 @@ const CustomizedProducts = ({ productId, variants, productOptions }: { productId
     };
 
     const isVariantInStock = (choices: { [key: string]: string }) => {
-    return variants.some((variant) => {
-        const variantChoices = variant.choices;
-        if (!variantChoices) return false;
+        return variants.some((variant) => {
+            const variantChoices = variant.choices;
+            if (!variantChoices) return false;
 
-        const matchesChoices = Object.entries(choices).every(
-            ([key, value]) => variantChoices[key] === value
-        );
+            const matchesChoices = Object.entries(choices).every(
+                ([key, value]) => variantChoices[key] === value
+            );
 
-        const inStock = variant.stock?.trackQuantity
-            ? variant.stock?.inStock && variant.stock?.quantity && variant.stock?.quantity > 0
-            : variant.stock?.inStock;
+            const inStock = variant.stock?.trackQuantity
+                ? variant.stock?.inStock && variant.stock?.quantity && variant.stock?.quantity > 0
+                : variant.stock?.inStock;
 
-        return matchesChoices && inStock;
-    });
-};
+            return matchesChoices && inStock;
+        });
+    };
 
     return (
-    <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
             {productOptions.map((option) => (
                 <div key={option.name} className="flex flex-col gap-4">
                     <h4 className="font-medium">Choose a {option.name}</h4>
                     <ul className="flex items-center gap-3">
-                        {option.choices?.map((choice) => {
+                        {option.choices?.map((choice: products.Choice) => {
                             const disabled = !isVariantInStock({ ...selectedOptions, [option.name!]: choice.description! });
                             const selected = selectedOptions[option.name!] === choice.description;
                             const clickHandler = disabled ? undefined : () => handleOptionSelect(option.name!, choice.description!);
@@ -80,10 +83,13 @@ const CustomizedProducts = ({ productId, variants, productOptions }: { productId
                     </ul>
                 </div>
             ))}
-        <AddCart productId={productId} variantId={selectedVariants?._id || "00000000-0000-0000-0000-000000000000"} stockNumber={selectedVariants?.stock?.quantity || 0}/>
+            <AddCart 
+                productId={productId} 
+                variantId={selectedVariants?._id || "00000000-0000-0000-0000-000000000000"} 
+                stockNumber={selectedVariants?.stock?.quantity || 0}
+            />
         </div>
     );
-
 };
 
 export default CustomizedProducts;

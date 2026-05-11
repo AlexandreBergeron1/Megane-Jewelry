@@ -3,8 +3,12 @@
 import Link from "next/dist/client/link";
 import Menu from "./Menu";
 import Image from "next/image";
-import NavIcons from "./NavIcons";
+//import NavIcons from "./NavIcons";
+import { Suspense } from "react";
 import SearchBar from "./SearchBar";
+import dynamic from "next/dynamic";
+
+const NavIcons = dynamic(()=>import("./NavIcons"),{ssr:false})
 
 const NavBar = () => {    
     return (
@@ -31,7 +35,9 @@ const NavBar = () => {
                 </div>
                 {/* RIGHT */}
                 <div className="w-2/3 flex items-center justify-between gap-8">
-                <SearchBar/>
+                <Suspense fallback={null}>
+                    <SearchBar/>
+                </Suspense>
                 <NavIcons/>
                 </div>
             </div>

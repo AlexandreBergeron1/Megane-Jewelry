@@ -5,6 +5,7 @@ import Categories from "./Categories";
 import Pagination from "./Pagination";
 import FilterWrapper from "./FilterWrapper";
 import { wixServerClient } from "@/lib/wixServerClient";
+import { Suspense } from "react";
 
 const ProductList = ({ products, hasNext, hasPrev, totalCount, limit, availability }: {
     products: any[];
@@ -12,7 +13,8 @@ const ProductList = ({ products, hasNext, hasPrev, totalCount, limit, availabili
     hasPrev: boolean;
     totalCount: number;
     limit: number;
-    availability: string;
+    availability?: string;
+    categoryId?: string;
 }) => {
 
 return (
@@ -43,7 +45,7 @@ return (
                 </div>
                 </Link>))}
             </div>
-            {totalCount > limit && (<Pagination hasNext={hasNext} hasPrev={hasPrev} totalCount={totalCount} limit={limit}/>)}
+            {totalCount > limit && (<Supense fallback={null}><Pagination hasNext={hasNext} hasPrev={hasPrev} totalCount={totalCount} limit={limit}/></Supense>)}
         </div>
     </div>
 </>

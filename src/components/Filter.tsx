@@ -1,17 +1,23 @@
 "use client";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
+type Category = {
+    id: string;
+    name: string;
+    slug: string;
+};
+
 const Filter = ({ typeParents }: { typeParents: Category[] }) => {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const { replace } = useRouter();
 
-    const handleFilterChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
+    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target;
         const params = new URLSearchParams(searchParams);
-        params.set(name,value);
+        params.set(name, value);
         replace(`${pathname}?${params.toString()}`);
-    }
+    };
     return (
         <div className="flex justify-between flex-col sm:flex-row items-start sm:items-center gap-8">  
             <div className="flex items-center flex-col sm:flex-row gap-4">

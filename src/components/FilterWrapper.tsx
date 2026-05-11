@@ -1,4 +1,5 @@
 import Filter from "./Filter";
+import { Suspense } from "react";
 
 const FilterWrapper = async () => {
     const response = await fetch(
@@ -25,7 +26,7 @@ const FilterWrapper = async () => {
         c.name !== "Color"
     );
 
-    return <Filter typeParents={typeParents} />;
+    return <Suspense fallback={null}><Filter typeParents={typeParents} /></Suspense>;
 };
 
 export default FilterWrapper;

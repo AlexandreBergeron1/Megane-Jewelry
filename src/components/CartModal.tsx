@@ -1,9 +1,21 @@
 "use client";
+import { useWixClient } from "@/context/wixContext";
 import Image from "next/image";
+import { useEffect } from "react";
+import { currentCart } from "@wix/ecom";
+import { useCartStore } from "@/hooks/useCardStore";
 
 const CartModal = () => {
 
 const cartItems = false;
+const wixClient = useWixClient();
+
+const {cart,getCart} = useCartStore();
+
+useEffect (() => {
+    getCart(wixClient);
+}, [wixClient, getCart]);
+
 
     return (
         <div className="w-max absolute p-4 rounded-md shadow-md bg-white top-12 right-0 flex flex-col gap-6 z-20">
@@ -16,7 +28,7 @@ const cartItems = false;
             <div className="flex flx-col gap-8">
                 {/* Item */}
                 <div className="flex gap-4">
-                <Image src="https://images.unsplash.com/photo-1773332585754-f1436987743b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="product" width={50} height={50} className="object-cover rounded-md"/>
+                <Image src="" alt="product" width={50} height={50} className="object-cover rounded-md"/>
                     <div className="flex flex-col justify-between w-full">
                         <div className="">
                             {/* Top */}

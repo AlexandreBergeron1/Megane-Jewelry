@@ -1,5 +1,6 @@
 // components/Categories.tsx
 import CategoriesClient from "./CategoriesClient";
+import { Suspense } from "react";
 
 const Categories = async () => {
     const response = await fetch(
@@ -48,12 +49,14 @@ const Categories = async () => {
     );
 
     return (
+        <Suspense fallback={null}>
         <CategoriesClient
             typeParents={typeParents}
             necklaceChildren={necklaceChildren}
             braceletChildren={braceletChildren}
             colors={colors}
         />
+        </Suspense>
     );
 };
 

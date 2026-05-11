@@ -10,7 +10,7 @@ const Footer = () => {
                 {/* LEFT */}
                 <div className="w-full md:w-1/2 lg:w-1/4 flex flex-col gap-4">
                     <Link href="/" className="flex items-center gap-3">
-                    <img src="/logo.png" alt="logo" width={24} height={24}/>
+                    <Image src="/logo.png" alt="logo" width={24} height={24}/>
                     MEGANE JEWELRY
                     </Link>
                     <p>Based In Montreal</p>

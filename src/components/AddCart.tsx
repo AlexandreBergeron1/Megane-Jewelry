@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { useWixClient } from "@/context/wixContext";
+import { currentCart } from "@wix/ecom";
 
 const AddCart = ({productId, variantId, stockNumber}:{productId:string,variantId:string,stockNumber:number}) => {
 
@@ -7,6 +9,21 @@ const [quantity, setQuantity] = useState(1);
 
 const increment = () => {
 setQuantity((prev) => prev + 1);
+}
+
+const wixClient = useWixClient();
+
+const addItem = async () => {
+    const response = await wixClient.currentCart.addToCurrentCart({
+        lineItems:[{
+            catalogReference:{
+                appId:process.env.NEXT_PUBLIC_WIX_APP_ID!,
+                catalogItemId:productId,
+                ...(variantId && {options:{variantId}}),
+            }, 
+            quantity,
+        }]
+    });
 }
 
 return (
@@ -28,9 +45,7 @@ return (
         </div>
         <div className="text-sm">Only <span className="font-bold">{stockNumber} items</span> left!</div>
     </div>
-    <button
-        className="w-36 text-sm bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-500">Add
-        to Cart</button>
+    <button onClick={addItem()} className="w-36 text-sm bg-black text-white py-2 px-4 rounded-md hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-gray-500">Add to Cart</button>
 </div>
 )
 }

@@ -87,7 +87,6 @@ async function getProducts(categoryId?: string, name?: string, sort?: string, li
             .skip(skip);
 
         const res = await query.find();
-        console.log(res)
         items = res.items;
         totalCount = res.totalCount ?? 0;
     }
@@ -137,7 +136,7 @@ export default async function HomePage({
             <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
                 <Suspense fallback={<div>Loading...</div>}>
                     <ProductList
-                        categoryId={process.env.NEXT_PUBLIC_WIX_FEATURED_PRODUCTS_CATEGORY_ID}
+                        categoryId={process.env.NEXT_PUBLIC_WIX_FEATURED_PRODUCTS_CATEGORY_ID || ""}
                         products={products}
                         hasNext={hasNext}
                         hasPrev={hasPrev}

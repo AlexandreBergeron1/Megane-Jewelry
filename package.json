@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "@wix/categories": "^1.0.190",
-    "@wix/ecom": "^1.0.2052",
+    "@wix/ecom": "^1.0.2057",
     "@wix/sdk": "^1.21.7",
     "@wix/stores": "^1.0.761",
     "js-cookie": "^3.0.5",
     "next": "14.2.2",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.6",
