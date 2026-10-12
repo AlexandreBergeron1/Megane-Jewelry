@@ -37,11 +37,11 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
     const showBraceletSubtype = selectedCatSlug === "bracelet";
 
     return (
-        <div className="hidden flex-col w-50 gap-10 sm:flex">
+        <div className="hidden flex-col w-[150px] gap-10 sm:flex">
 
             {/* Type */}
             <div className="flex flex-col gap-2">
-                <h3 className="text-md font-bold">Type</h3>
+                <h3 className="text-lg font-bold">Type</h3>
                 {/* All Products option */}
             <div>
             <input
@@ -81,7 +81,7 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
             {/* Necklace Subtype */}
             {showNecklaceSubtype && (
                 <div className="flex flex-col gap-2">
-                    <h3 className="text-md font-bold">Necklace Subtype</h3>
+                    <h3 className="text-lg font-bold">Necklace Subtype</h3>
                     {necklaceChildren.map((category) => (
                         <div key={category.id}>
                             <input
@@ -103,7 +103,7 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
             {/* Bracelet Subtype */}
             {showBraceletSubtype && (
                 <div className="flex flex-col gap-2">
-                    <h3 className="text-md font-bold">Bracelet Subtype</h3>
+                    <h3 className="text-lg font-bold">Bracelet Subtype</h3>
                     {braceletChildren.map((category) => (
                         <div key={category.id}>
                             <input
@@ -124,7 +124,7 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
 
             {/* Color */}
             <div className="flex flex-col gap-2">
-                <h3 className="text-md font-bold">Color</h3>
+                <h3 className="text-lg font-bold">Color</h3>
                 {colors.map((color) => (
                     <div key={color.id}>
                         <input

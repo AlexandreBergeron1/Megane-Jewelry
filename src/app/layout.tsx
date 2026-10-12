@@ -1,11 +1,40 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Playfair_Display } from "next/font/google";
+import { Libre_Franklin } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { WixClientContext, WixClientContextProvider } from "@/context/wixContext";
 
 const inter = Inter({ subsets: ["latin"] });
+const merchant = localFont({ 
+    src: "../../public/fonts/Merchant-Regular.woff2",
+    variable: "--font-merchant",
+    display: "swap",
+});
+
+const nyght = localFont({ 
+    src: "../../public/fonts/NyghtSerif-Light.woff2",
+    variable: "--font-nyght",
+    display: "swap",
+});
+
+const playfair = Playfair_Display({ 
+    subsets: ["latin"],
+    variable: "--font-playfair",
+});
+
+const libreFranklin = Libre_Franklin({ 
+    subsets: ["latin"],
+    variable: "--font-libre-franklin",
+});
+
+const cabinet = localFont({
+    src: "../../public/fonts/CabinetGrotesk-Variable.woff2",
+    variable: "--font-cabinet",
+});
 
 export const metadata: Metadata = {
   title: "Megane Jewelry",
@@ -19,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#D8DCE5]`}>
+      <body className={`${nyght.variable} ${merchant.variable} ${playfair.variable} ${libreFranklin.variable} ${cabinet.variable} bg-[#FFFAF5]`}>
         <WixClientContextProvider>
         <NavBar />
         {children}

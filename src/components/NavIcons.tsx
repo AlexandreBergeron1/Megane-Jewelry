@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useWixClient } from "@/context/wixContext";
+import { useCartStore } from "@/hooks/useCartStore";
 import CartModal from "./CartModal";
 import Cookies from "js-cookie";
 
@@ -11,12 +12,14 @@ const NavIcons = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 safe default
+
 
     const router = useRouter();
     const pathName = usePathname();
     const wixClient = useWixClient();
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 safe default
+    const { cart, counter, getCart } = useCartStore();
 
     useEffect(() => {
         try {
@@ -41,21 +44,21 @@ const NavIcons = () => {
         setIsLoading(false);
         setIsProfileOpen(false);
         router.push(logoutUrl);
-    }
+    };
 
     return (
         <div className="flex items-center gap-4 xl:gap-6 relative">
-            <Image  src="/profile.png" alt="search" width={22} height={22} className="cursor-pointer" onClick={handleProfile}/>
+            <Image  src="/profile-2.png" alt="search" width={22} height={22} className="cursor-pointer" onClick={handleProfile}/>
             {isProfileOpen && <div className="absolute top-10 right-0 bg-white p-4 rounded-md text-sm shadow-md z-20">
                 <Link href="/profile" className="">Profile</Link>
                 <div className="mt-2 cursor-pointer" onClick={handleLogout}>{isLoading ? "Logging out" : "Logout"}</div>
             </div>}
-            <Image  src="/notification.png" alt="search" width={22} height={22} className="cursor-pointer"/>
+            <Image  src="/notification.png" alt="search" width={17} height={17} className="cursor-pointer"/>
             <div className="relative cursor-pointer">
-                <Image  src="/cart.png" alt="search" width={22} height={22} className="cursor-pointer" onClick={()=>setIsCartOpen(prev=>!prev)}/>
-                <div className="absolute -top-4 -right-4 w-6 h-6 bg-[#F35C7A] text-sm rounded-full text-white flex items-center justify-center">
-                    2
-                </div>
+                <Image  src="/cart-2.png" alt="search" width={18} height={18} className="cursor-pointer" onClick={()=>setIsCartOpen(prev=>!prev)}/>
+                {counter > 0 && <div className="absolute -top-4 -right-4 w-6 h-6 bg-black text-sm rounded-full text-white flex items-center justify-center">
+                    {counter}
+                </div>}
             </div>
             {isCartOpen && <CartModal />}
         </div>

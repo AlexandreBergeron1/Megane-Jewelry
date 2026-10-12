@@ -1,158 +1,189 @@
 "use client"
-
 import { useState } from "react";
-import { useEffect } from "react";
-import { useWixClient } from "@/context/wixContext";
-import { usePathname } from "next/navigation";
-import { LoginState } from "@wix/sdk";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
+import { GoogleReCaptchaProvider, useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
-enum MODE {
-    LOGIN="LOGIN",
-    REGISTER="REGISTER",
-    RESET_PASSWORD="RESET_PASSWORD",
-    EMAIL_VERIFICATION="EMAIL_VERIFICATION"
-}
-const LoginPage = () => {
+const ContactForm = () => {
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    requestType: "general",
+    message: "",
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const wixClient = useWixClient(); // guaranteed to be non-null
-    const router = useRouter(); // add at top with other hooks
-    const isLoggedIn = wixClient.auth.loggedIn();
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-    if (isLoggedIn) {
-        router.push("/");
-    }
-
-    const [mode, setMode] = useState(MODE.LOGIN);
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [emailCode, setEmailCode] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [message, setMessage] = useState("");
-
-    const formTitle = mode===MODE.LOGIN ? "Log in" : mode===MODE.REGISTER ? "Register" : mode===MODE.RESET_PASSWORD ? "Reset Your Password" : "Verify your email"
-    const buttonTitle = mode===MODE.LOGIN ? "Log in" : mode===MODE.REGISTER ? "Register" : mode===MODE.RESET_PASSWORD ? "Reset" : "Verify"
-
-
-    const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     setError("");
 
     try {
-        let response;
+      const token = await executeRecaptcha("submit_form");
 
-        switch (mode) {
-            case MODE.LOGIN:
-                response = await wixClient.auth.login({ email, password });
-                break;
-            case MODE.REGISTER:
-                response = await wixClient.auth.register({
-                    email,
-                    password,
-                    profile: { nickname: username },
-                });
-                break;
-            case MODE.RESET_PASSWORD:
-                await wixClient.auth.sendPasswordResetEmail(email, window.location.href);
-                setMessage("Password reset email sent. Please check your inbox.");
-                setIsLoading(false);
-                return;
-            case MODE.EMAIL_VERIFICATION:
-                response = await wixClient.auth.processVerification({
-                    verificationCode: emailCode,
-                });
-                break;
-            default:
-                break;
-        }
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          recaptchaToken: token,
+        }),
+      });
 
-        switch (response?.loginState) {
-            case LoginState.SUCCESS:
-                setMessage("Succesful! You are being redirected.");
-                console.log("sessionToken:", response.data.sessionToken);
-                const tokens = await wixClient.auth.getMemberTokensForDirectLogin(response.data.sessionToken!);
-                console.log(tokens);
-                Cookies.set("refreshToken", JSON.stringify(tokens.refreshToken),{
-                    expires:2
-                })
-                router.push("/");
-                break;
-            case LoginState.FAILURE:
-                if (response.errorCode === "invalid" || response.errorCode === "invalidPassword"){
-                    setError("Invalid email or password.");
-                } else if (response.errorCode === "emailAlreadyExists") {
-                    setError("Email already exists.");
-                } else if (response.errorCode === "resetPassword"){
-                    setError("You need to reset your password");
-                } else {
-                    setError("Something went wrong");
-                }
-                break;
-            case LoginState.EMAIL_VERIFICATION_REQUIRED:
-                setMode(MODE.EMAIL_VERIFICATION);
-                break;
-            case LoginState.OWNER_APPROVAL_REQUIRED:
-                setMessage("Your account is pending approval");
-            default:
-                break;
-        }
-    } catch (err) {
-        console.log(err);
-        setError("Something went wrong!");
+      if (response.ok) {
+        setSubmitted(true);
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          requestType: "general",
+          message: "",
+        });
+        setTimeout(() => setSubmitted(false), 5000);
+      } else {
+        setError("Failed to send message. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setError("An error occurred. Please try again.");
     } finally {
-        setIsLoading(false);
+      setLoading(false);
     }
+  };
+
+  return (
+    <div className="mt-24 px-4 pt-8 pb-16 md:px-8 lg:px-16 xl:px-32 2xl:px-64" style={{ maxWidth: "1700px", margin: "0 auto" }}>
+      <h1 className="text-2xl pb-2 font-bold">Contact</h1>
+      <p className="text-gray-600 pb-8">Have questions or want to learn more about our jewelry? Reach out to me by filling the form below!</p>
+
+      {submitted && (
+        <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
+          Thank you for your message! I'll get back to you soon.
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="firstName" className="font-medium text-sm">
+              First Name
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="John"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="lastName" className="font-medium text-sm">
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="Doe"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 mb-6">
+          <label htmlFor="email" className="font-medium text-sm">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            placeholder="john@example.com"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 mb-6">
+          <label htmlFor="requestType" className="font-medium text-sm">
+            Type of Request
+          </label>
+          <select
+            id="requestType"
+            name="requestType"
+            value={formData.requestType}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+          >
+            <option value="general">General Inquiry</option>
+            <option value="order">Order Related</option>
+            <option value="custom">Custom Order</option>
+            <option value="return">Return/Exchange</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2 mb-6">
+          <label htmlFor="message" className="font-medium text-sm">
+            Message
+          </label>
+          <textarea
+            id="message"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            required
+            rows={5}
+            className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+            placeholder="Your message here..."
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full md:w-auto ring-1 ring-black text-md font-semibold text-black py-2 px-8 rounded-2xl hover:bg-black hover:text-white transition-all ease duration-250 disabled:opacity-50"
+        >
+          {loading ? "Sending..." : "Send Message"}
+        </button>
+      </form>
+    </div>
+  );
 };
 
-    return (
-        <div className="my-12 px-4 md:px-8 lg:px-16 xl:32 2xl:px-64 flex items-center justify-right">
-            <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
-                <h1 className="text-2xl font-semibold">{formTitle}</h1>
-                {mode===MODE.REGISTER ? (
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm text-black">Username</label>
-                        <input type="text" name="username" placeholder="Your username" className="ring-1 ring-gray-500 rounded-md bg-transparent px-4 py-2" onChange={e=>setUsername(e.target.value)}/>
-                    </div>
-                ) : null}
-                {mode !== MODE.EMAIL_VERIFICATION ? (
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm text-black">Email</label>
-                        <input type="email" name="email" placeholder="youremail@gmail.com" className="ring-1 ring-gray-500 rounded-md bg-transparent px-4 py-2" onChange={e=>setEmail(e.target.value)}/>
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm text-black">Verification code</label>
-                        <input type="text" name="email_code" placeholder="Code" className="ring-1 ring-gray-500 rounded-md bg-transparent px-4 py-2" onChange={e=>setEmailCode(e.target.value)}/>
-                    </div>
-                )}
-                {mode === MODE.LOGIN || mode === MODE.REGISTER ? (
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm text-black">Password</label>
-                        <input type="password" name="password" placeholder="Enter your password" className="ring-1 ring-gray-500 rounded-md bg-transparent px-4 py-2" onChange={e=>setPassword(e.target.value)}/>
-                    </div>
-                ) : null}
-                {mode===MODE.LOGIN && <div className="text-sm underline cursor-pointer" onClick={() => setMode(MODE.RESET_PASSWORD)}>Forgot Password?</div>}
-                <button className="bg-black text-white p-2 rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed">
-                    {isLoading ? "Loading..." : buttonTitle}
-                </button>
-                {error && <div className="txt-red-600">{error}</div>}
-                {mode===MODE.LOGIN && (
-                    <div className="text-sm underline cursor-pointer" onClick={() => setMode(MODE.REGISTER)}>{"Don't"} have an account?</div>
-                )}
-                {mode===MODE.REGISTER && (
-                    <div className="text-sm underline cursor-pointer" onClick={() => setMode(MODE.LOGIN)}>Have an account?</div>
-                )}
-                {mode===MODE.RESET_PASSWORD && (
-                    <div className="text-sm underline cursor-pointer" onClick={() => setMode(MODE.LOGIN)}>Go back to login</div>
-                )}
-                {message && <div className="text-green-600 text-sm">{message}</div>}
-            </form>
-        </div>
-    )
-} 
+const ContactPage = () => {
+  return (
+    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_KEY!}>
+      <ContactForm />
+    </GoogleReCaptchaProvider>
+  );
+};
 
-export default LoginPage
+export default ContactPage;

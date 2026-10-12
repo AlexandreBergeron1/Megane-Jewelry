@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
 
-const ACCORDION_TITLES = ["Materials", "Refund Policy", "Shipping", "Care Instructions"];
+const ACCORDION_TITLES = ["Materials", "Refund Policy", "Shipping", "Sizing", "Care Instructions"];
 
 const Accordion = ({ product }: { product: any }) => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -38,13 +38,13 @@ const Accordion = ({ product }: { product: any }) => {
                         onClick={() => toggle(index)}
                         className="w-full flex justify-between items-center text-left"
                     >
-                        <span className="font-medium">{item.title}</span>
+                        <h3 className="text-xl font-regular">{item.title}</h3>
                         <span>{openIndex === index ? chevronOpen : chevronClosed}</span>
                     </button>
 
                     {openIndex === index && (
                         <div
-                            className="mt-2 text-sm text-gray-600 prose prose-sm max-w-none"
+                            className="mt-2 text-md text-black prose prose-sm max-w-none"
                             dangerouslySetInnerHTML={{ __html: item.content }}
                         />
                     )}

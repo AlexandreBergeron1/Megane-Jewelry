@@ -132,8 +132,7 @@ export default async function HomePage({
     );
 
     return (
-        <div>
-            <div className="mt-24 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+            <div className="my-12 pt-8 pb-16 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 max-auto" style={{ maxWidth: "1700px", margin: "0 auto"  }}>
                 <Suspense fallback={<div>Loading...</div>}>
                     <ProductList
                         categoryId={process.env.NEXT_PUBLIC_WIX_FEATURED_PRODUCTS_CATEGORY_ID || ""}
@@ -146,6 +145,5 @@ export default async function HomePage({
                     />
                 </Suspense>
             </div>
-        </div>
     );
 }
