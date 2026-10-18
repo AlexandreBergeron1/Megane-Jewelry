@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 type Category = {
     id: string;
@@ -33,7 +34,29 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
         router.push(`?${params.toString()}`);
     };
 
-    const showNecklaceSubtype = selectedCatSlug === "neckclace"; // your slug from Wix
+    const handleAllSubtypes = (parentSlug: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("cat", parentSlug);
+        params.delete("subcat");
+        params.delete("page");
+        router.push(`?${params.toString()}`);
+    };
+
+    const handleColorSelect = (slug: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("color", slug);
+        params.delete("page"); // RESET PAGE
+        router.push(`?${params.toString()}`);
+    };
+
+    const handleRemoveColor = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("color");
+        params.delete("page"); // RESET PAGE
+        router.push(`?${params.toString()}`);
+    };
+
+    const showNecklaceSubtype = selectedCatSlug === "neckclace";
     const showBraceletSubtype = selectedCatSlug === "bracelet";
 
     return (
@@ -79,52 +102,101 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
             </div>
 
             {/* Necklace Subtype */}
-            {showNecklaceSubtype && (
-                <div className="flex flex-col gap-2">
-                    <h3 className="text-lg font-bold">Necklace Subtype</h3>
-                    {necklaceChildren.map((category) => (
-                        <div key={category.id}>
-                            <input
-                                type="radio"
-                                name="subtype"
-                                id={category.id}
-                                className="hidden peer"
-                                onChange={() => handleSubtypeSelect(category.slug)}
-                                checked={searchParams.get("subcat") === category.slug}
-                            />
-                            <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
-                                {category.name}
-                            </label>
-                        </div>
-                    ))}
-                </div>
-            )}
+{showNecklaceSubtype && (
+    <div className="flex flex-col gap-2">
+        <h3 className="text-lg font-bold">Necklace Subtype</h3>
 
-            {/* Bracelet Subtype */}
-            {showBraceletSubtype && (
-                <div className="flex flex-col gap-2">
-                    <h3 className="text-lg font-bold">Bracelet Subtype</h3>
-                    {braceletChildren.map((category) => (
-                        <div key={category.id}>
-                            <input
-                                type="radio"
-                                name="subtype"
-                                id={category.id}
-                                className="hidden peer"
-                                onChange={() => handleSubtypeSelect(category.slug)}
-                                checked={searchParams.get("subcat") === category.slug}
-                            />
-                            <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
-                                {category.name}
-                            </label>
-                        </div>
-                    ))}
-                </div>
-            )}
+        {/* All Necklaces option */}
+        <div>
+            <input
+                type="radio"
+                name="subtype"
+                id="all-necklaces"
+                className="hidden peer"
+                onChange={() => handleAllSubtypes("neckclace")}
+                checked={searchParams.get("subcat") === null}
+            />
+            <label htmlFor="all-necklaces" className="cursor-pointer peer-checked:font-bold">
+                All Necklaces
+            </label>
+        </div>
+
+        {necklaceChildren.map((category) => (
+            <div key={category.id}>
+                <input
+                    type="radio"
+                    name="subtype"
+                    id={category.id}
+                    className="hidden peer"
+                    onChange={() => handleSubtypeSelect(category.slug)}
+                    checked={searchParams.get("subcat") === category.slug}
+                />
+                <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
+                    {category.name}
+                </label>
+            </div>
+        ))}
+    </div>
+)}
+
+{/* Bracelet Subtype */}
+{showBraceletSubtype && (
+    <div className="flex flex-col gap-2">
+        <h3 className="text-lg font-bold">Bracelet Subtype</h3>
+
+        {/* All Bracelets option */}
+        <div>
+            <input
+                type="radio"
+                name="subtype"
+                id="all-bracelets"
+                className="hidden peer"
+                onChange={() => handleAllSubtypes("bracelet")}
+                checked={searchParams.get("subcat") === null}
+            />
+            <label htmlFor="all-bracelets" className="cursor-pointer peer-checked:font-bold">
+                All Bracelets
+            </label>
+        </div>
+
+        {braceletChildren.map((category) => (
+            <div key={category.id}>
+                <input
+                    type="radio"
+                    name="subtype"
+                    id={category.id}
+                    className="hidden peer"
+                    onChange={() => handleSubtypeSelect(category.slug)}
+                    checked={searchParams.get("subcat") === category.slug}
+                />
+                <label htmlFor={category.id} className="cursor-pointer peer-checked:font-bold">
+                    {category.name}
+                </label>
+            </div>
+        ))}
+    </div>
+)}
 
             {/* Color */}
             <div className="flex flex-col gap-2">
                 <h3 className="text-lg font-bold">Color</h3>
+                
+                {/* All Colors option */}
+                <div>
+                    <input
+                        type="radio"
+                        name="color"
+                        id="all-colors"
+                        className="hidden peer"
+                        onChange={() => handleRemoveColor()}
+                        checked={searchParams.get("color") === null}
+                    />
+                    <label htmlFor="all-colors" className="cursor-pointer peer-checked:font-bold">
+                        All Colors
+                    </label>
+                </div>
+                
+                {/* Individual colors */}
                 {colors.map((color) => (
                     <div key={color.id}>
                         <input
@@ -132,11 +204,7 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
                             name="color"
                             id={color.id}
                             className="hidden peer"
-                            onChange={() => {
-                                const params = new URLSearchParams(searchParams.toString());
-                                params.set("color", color.slug);
-                                router.push(`?${params.toString()}`);
-                            }}
+                            onChange={() => handleColorSelect(color.slug)}
                             checked={searchParams.get("color") === color.slug}
                         />
                         <label htmlFor={color.id} className="cursor-pointer peer-checked:font-bold">
@@ -145,7 +213,6 @@ const CategoriesClient = ({ typeParents, necklaceChildren, braceletChildren, col
                     </div>
                 ))}
             </div>
-
         </div>
     );
 };

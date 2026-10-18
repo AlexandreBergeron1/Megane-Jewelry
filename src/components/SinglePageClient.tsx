@@ -8,6 +8,7 @@ import AddCart from "@/components/AddCart";
 import Image from "next/image";
 import Link from "next/link";
 import { products } from "@wix/stores";
+import ProductReviews from "@/components/ProductReviews";
 
 export function SinglePageClient({ product, filteredSimilarProducts }: any) {
   const [selectedColor, setSelectedColor] = useState("");
@@ -79,6 +80,8 @@ export function SinglePageClient({ product, filteredSimilarProducts }: any) {
           <Accordion product={product} />
         </div>
       </div>
+
+      <ProductReviews />
 
       {/* You May Also Like */}
       {filteredSimilarProducts.length > 0 && (

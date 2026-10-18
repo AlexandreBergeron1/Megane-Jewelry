@@ -15,8 +15,6 @@ const CartModal = () => {
         getCart(wixClient);
     }, [wixClient, getCart]);
 
-    console.log("cart:" + cart);
-
     return (
         <div className="w-max absolute p-4 rounded-md shadow-md bg-white top-12 right-0 flex flex-col gap-6 z-20">
             {!cart.lineItems ? (
@@ -29,7 +27,7 @@ const CartModal = () => {
                         {cart.lineItems.map((item) => (
                             <div className="flex gap-4" key={item._id}>
                                 {item.image && <Image src={WixMedia.getScaledToFillImageUrl(item.image,72,96,{})} alt={item._id} width={72} height={96} className="object-cover rounded-md" />}
-                                <div className="flex flex-col justify-between h-full w-full">
+                                <div className="flex flex-col justify-between w-full">
                                     <div>
                                         <div className="flex items-center justify-between gap-8">
                                             <h3 className="font-semibold">{item.productName?.original}</h3>
@@ -40,7 +38,7 @@ const CartModal = () => {
                                         </div> */}
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-500">Qty. {item.quantity}</span>
-                                            <span className="text-red" 
+                                            <span className="text-red-500" 
                                             style={{cursor: isLoading ? "not-allowed" : "pointer"}}
                                             onClick={()=>removeItem(wixClient,item._id!)}>Remove</span>
                                         </div>

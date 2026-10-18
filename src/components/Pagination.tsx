@@ -11,8 +11,6 @@ const Pagination = ({ hasNext, hasPrev, totalCount, limit }: {
     const searchParams = useSearchParams();
     const currentPage = parseInt(searchParams.get("page") || "1");
     const totalPages = Math.ceil(totalCount / limit);
-    console.log("limit" + limit);
-    console.log("totalPages" + totalPages);
 
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString());

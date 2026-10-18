@@ -2,7 +2,7 @@ import { wixServerClient } from "@/lib/wixServerClient";
 import { notFound } from "next/navigation";
 import { SinglePageClient } from "@/components/SinglePageClient";
 
-export const revalidate = 60;
+export const revalidate = 30;
 
 const SinglePage = async ({
   params,
