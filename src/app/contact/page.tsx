@@ -58,7 +58,7 @@ const ContactPage = () => {
 
       {submitted && (
         <div className="mb-6 p-4 text-black rounded-md">
-          Thank you for your message! I'll get back to you soon.
+          Thank you for your message! I&apos;ll get back to you soon.
         </div>
       )}
 

@@ -245,7 +245,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             {previews.length > 0 && (
               <div className="flex gap-2">
                 {previews.map((src, i) => (
-                  <img key={i} src={src} alt="" className="w-16 h-16 object-cover rounded-md" />
+                  <Image key={i} src={src} alt="" className="w-16 h-16 object-cover rounded-md" />
                 ))}
               </div>
             )}
@@ -276,7 +276,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               Submit
             </button>
 
-            {submitted && <p className="text-sm text-green-600">Thank you for your review! Please note that it will be published after approval.</p>}
+            {submitted && <p className="text-sm text-green-600">Thank you for your review! Please note that will be published after approval.</p>}
           </form>
         </div>
       </div>
