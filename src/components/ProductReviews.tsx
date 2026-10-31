@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+
 
 type Review = {
   id: string;
@@ -10,29 +12,9 @@ type Review = {
   comment: string;
   photos?: string[];
   productName: string;
+  productSlug?: string;
   date: string;
 };
-
-// Sample data - replace with real reviews from your data source
-const SAMPLE_REVIEWS: Review[] = [
-  {
-    id: "1",
-    username: "sarah_m",
-    rating: 5,
-    comment: "Absolutely love this necklace! The silver finish is beautiful and it looks even better in person.",
-    photos: ["/product.png"],
-    productName: "Silver Chandelier Necklace",
-    date: "2026-09-12",
-  },
-  {
-    id: "2",
-    username: "jjames",
-    rating: 4,
-    comment: "Lovely piece, arrived well packaged. Slightly smaller than I expected but still gorgeous.",
-    productName: "Pink Pearls Bracelet",
-    date: "2026-08-30",
-  },
-];
 
 const Stars = ({ rating, size = "w-4 h-4" }: { rating: number; size?: string }) => (
   <div className="flex gap-0.5">
@@ -49,11 +31,37 @@ const Stars = ({ rating, size = "w-4 h-4" }: { rating: number; size?: string }) 
   </div>
 );
 
-const ProductReviews = ({ reviews = SAMPLE_REVIEWS }: { reviews?: Review[] }) => {
+type ProductReviewsProps = {
+  reviews?: Review[];
+  productId: string;
+  productName: string;
+  productSlug?: string;
+  page?: number;
+  totalPages?: number;
+};
+
+const ProductReviews = ({
+  reviews = [],
+  productId,
+  productName,
+  productSlug = "",
+  page = 1,
+  totalPages = 1,
+}: ProductReviewsProps) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [username, setUsername] = useState("");
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? []).slice(0, 3);
+    setFiles(selected);
+    setPreviews(selected.map((f) => URL.createObjectURL(f)));
+  };
 
   const total = reviews.length;
   const average = total ? reviews.reduce((sum, r) => sum + r.rating, 0) / total : 0;
@@ -65,17 +73,65 @@ const ProductReviews = ({ reviews = SAMPLE_REVIEWS }: { reviews?: Review[] }) =>
     return { stars, count, percent };
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (rating === 0) return;
-    // TODO: send to your backend / Wix Reviews
-    console.log({ rating, comment });
-    setSubmitted(true);
-    setRating(0);
-    setComment("");
-  };
+  console.log("Sending review:", { productId, productName, username, rating, comment });
+  console.log("ProductReviews productId:", productId);
+
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (rating === 0) return;
+
+  let photoUrls: string[] = [];
+
+  if (files.length > 0) {
+    const formData = new FormData();
+    files.forEach((f) => formData.append("files", f));
+
+    const uploadRes = await fetch("/api/reviews/upload", {
+      method: "POST",
+      body: formData,
+    });
+    if (!uploadRes.ok) {
+      const data = await uploadRes.json().catch(() => ({}));
+      alert(`Photo upload failed: ${data.error ?? "unknown error"}`);
+      return;
+    }
+    photoUrls = (await uploadRes.json()).urls;
+  }
+
+  const res = await fetch("/api/reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      productId,
+      productName,
+      productSlug,
+      username: username.trim(),
+      rating,   
+      comment: comment.trim(),
+      photos: photoUrls,
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    alert(`Could not submit review: ${data.error ?? "unknown error"}`);
+    return;
+  }
+
+  setSubmitted(true);
+  setRating(0);
+  setComment("");
+  setUsername("");
+  setFiles([]);
+  setPreviews([]);
+};
 
   return (
+    <div
+      className="px-4 pt-4 pb-16 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative"
+      style={{ maxWidth: "1700px", margin: "0 auto" }}
+    >
     <section className="mt-16">
       <h2 className="text-2xl font-bold mb-8">Reviews</h2>
 
@@ -131,10 +187,27 @@ const ProductReviews = ({ reviews = SAMPLE_REVIEWS }: { reviews?: Review[] }) =>
                   </div>
                 )}
 
-                <p className="text-xs text-gray-400">Purchased: {review.productName}</p>
+                <p className="text-xs text-gray-400">
+                  Purchased:{" "}
+                 {review.productSlug ? (
+                    <Link href={`/${review.productSlug}`} className="underline hover:text-black">
+                      {review.productName}
+                    </Link>
+                  ) : (
+                    review.productName
+                  )}
+                </p>
               </div>
             ))}
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex gap-4 text-sm">
+              {page > 1 && <Link href={`?reviewPage=${page - 1}`}>Previous</Link>}
+              <span>{page} / {totalPages}</span>
+              {page < totalPages && <Link href={`?reviewPage=${page + 1}`}>Next</Link>}
+            </div>
+          )}
 
           {/* Leave a review form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 border-t border-gray-200 pt-8">
@@ -148,7 +221,7 @@ const ProductReviews = ({ reviews = SAMPLE_REVIEWS }: { reviews?: Review[] }) =>
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  aria-label={`${star} star${star > 1 ? "s" : ""}`}
+                  aria-label={`${star} star${star > 1 ? "" : ""}`}
                 >
                   <svg
                     className={`w-6 h-6 ${star <= (hoverRating || rating) ? "text-black" : "text-gray-300"}`}
@@ -160,6 +233,32 @@ const ProductReviews = ({ reviews = SAMPLE_REVIEWS }: { reviews?: Review[] }) =>
                 </button>
               ))}
             </div>
+
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={handleFiles}
+              className="text-sm"
+            />
+
+            {previews.length > 0 && (
+              <div className="flex gap-2">
+                {previews.map((src, i) => (
+                  <img key={i} src={src} alt="" className="w-16 h-16 object-cover rounded-md" />
+                ))}
+              </div>
+            )}
+
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Your name"
+              maxLength={50}
+              required
+              className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-1 focus:ring-black"
+            />
 
             <textarea
               value={comment}
@@ -177,11 +276,12 @@ const ProductReviews = ({ reviews = SAMPLE_REVIEWS }: { reviews?: Review[] }) =>
               Submit
             </button>
 
-            {submitted && <p className="text-sm text-green-600">Thank you for your review!</p>}
+            {submitted && <p className="text-sm text-green-600">Thank you for your review! Please note that it will be published after approval.</p>}
           </form>
         </div>
       </div>
     </section>
+    </div>
   );
 };
 
