@@ -24,44 +24,50 @@ const ContactForm = () => {
   };
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    try {
-      const token = await executeRecaptcha("submit_form");
+  if (!executeRecaptcha) {
+    setError("Security check is still loading. Please try again in a moment.");
+    return;
+  }
 
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          recaptchaToken: token,
-        }),
+  setLoading(true);
+
+  try {
+    const token = await executeRecaptcha("submit_form");
+
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...formData,
+        recaptchaToken: token,
+      }),
+    });
+
+    if (response.ok) {
+      setSubmitted(true);
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        requestType: "general",
+        message: "",
       });
-
-      if (response.ok) {
-        setSubmitted(true);
-        setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          requestType: "general",
-          message: "",
-        });
-        setTimeout(() => setSubmitted(false), 5000);
-      } else {
-        setError("Failed to send message. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      setError("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+      setTimeout(() => setSubmitted(false), 5000);
+    } else {
+      setError("Failed to send message. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    setError("An error occurred. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="mt-24 px-4 pt-8 pb-16 md:px-8 lg:px-16 xl:px-32 2xl:px-64" style={{ maxWidth: "1700px", margin: "0 auto" }}>

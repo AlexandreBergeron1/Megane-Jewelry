@@ -28,7 +28,7 @@ const SinglePage = async ({
   const product = products.items[0];
   const { reviews, totalPages } = await getApprovedReviews(reviewPage);
 
-  let filteredSimilarProducts = [];
+  let filteredSimilarProducts: any[] = [];
 
   try {
     if (product.productType) {
