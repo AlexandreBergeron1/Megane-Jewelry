@@ -12,14 +12,13 @@ const NavIcons = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false); // 👈 safe default
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 
     const router = useRouter();
-    const pathName = usePathname();
     const wixClient = useWixClient();
 
-    const { cart, counter, getCart } = useCartStore();
+    const { counter } = useCartStore();
 
     useEffect(() => {
         try {

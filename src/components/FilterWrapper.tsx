@@ -35,7 +35,7 @@ const FilterWrapper = async () => {
 
     return (
         <Suspense fallback={null}>
-            <Filter typeParents={typeParents} colors={colors} />
+            <Filter typeParents={typeParents} />
         </Suspense>
     );
 };

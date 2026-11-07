@@ -25,14 +25,17 @@ export default function ProductDetails({
   children,
 }: Props) {
   const [selectedColor, setSelectedColor] = useState("");
+  const [selectedVariant, setSelectedVariant] = useState<products.Variant>();
+  const [colorMedia, setColorMedia] = useState<any>(null);
 
   return (
     <div className="flex flex-col lg:flex-row gap-16">
       {/* Left column: product images */}
       <div className="w-full lg:w-1/2 lg:sticky top-20 h-max">
         <ProductImages
-          items={items}
+          items={colorMedia?.items || items}
           selectedColor={selectedColor}
+          selectedVariant={selectedVariant}
         />
       </div>
 
@@ -45,6 +48,8 @@ export default function ProductDetails({
           variants={variants}
           productOptions={productOptions}
           onColorChange={setSelectedColor}
+          onVariantChange={setSelectedVariant}
+          onColorMediaChange={setColorMedia}
         />
 
         <Accordion product={product} />
