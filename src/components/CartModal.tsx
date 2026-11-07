@@ -11,6 +11,11 @@ const CartModal = () => {
     const { cart, isLoading, getCart, removeItem } = useCartStore();
     const router = useRouter();
 
+    const subtotal = (cart.lineItems ?? []).reduce(
+    (sum, item) => sum + Number(item.price?.amount ?? 0) * (item.quantity ?? 1),
+    0
+    );
+
     useEffect(() => {
         getCart(wixClient);
     }, [wixClient, getCart]);
@@ -26,7 +31,15 @@ const CartModal = () => {
                     <div className="flex flex-col gap-8">
                         {cart.lineItems.map((item) => (
                             <div className="flex gap-4" key={item._id}>
-                                {item.image && <Image src={WixMedia.getScaledToFillImageUrl(item.image,72,96,{})} alt={item._id} width={72} height={96} className="object-cover rounded-md" />}
+                               {item.image && (
+                                 <Image
+                                    src={WixMedia.getScaledToFillImageUrl(item.image, 72, 96, {}) ?? "/product.png"}
+                                    alt={item.productName?.translated ?? item._id ?? "Product image"}
+                                    width={72}
+                                    height={96}
+                                    className="object-cover rounded-md"
+                                    />
+                                )}
                                 <div className="flex flex-col justify-between w-full">
                                     <div>
                                         <div className="flex items-center justify-between gap-8">
@@ -51,7 +64,7 @@ const CartModal = () => {
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                             <span className="font-semibold">Subtotal</span>
-                            <span className="font-semibold">${cart.subtotal.amount}</span>
+                            <span className="font-semibold">${subtotal.toFixed(2)}</span>
                         </div>
                         {/* <p className="text-gray-500 text-sm mt-2 mb-4">
                             Lorem ipsum sit amet consectetur adipiscing elit.
