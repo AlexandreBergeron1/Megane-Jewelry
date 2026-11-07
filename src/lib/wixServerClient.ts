@@ -1,4 +1,6 @@
 // lib/wixServerClient.ts
+console.log("WIX_API_KEY present at build:", !!process.env.WIX_API_KEY);
+
 import { createClient, ApiKeyStrategy } from "@wix/sdk";
 import { products, collections } from "@wix/stores";
 import { categories } from '@wix/categories';
