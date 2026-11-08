@@ -27,12 +27,6 @@ const FilterWrapper = async () => {
         c.name !== "Color"
     );
 
-    // Get colors (children of Color category)
-    const colorId = "5456b76b-e67d-4e00-b827-0055eeac9e06";
-    const colors = allCategories.filter((c: any) =>
-        c.parentCategory?.id === colorId
-    );
-
     return (
         <Suspense fallback={null}>
             <Filter typeParents={typeParents} />

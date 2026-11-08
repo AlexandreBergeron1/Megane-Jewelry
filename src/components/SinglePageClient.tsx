@@ -5,10 +5,7 @@ import ProductImages from "@/components/ProductImages";
 import CustomizedProducts from "@/components/CustomizedProducts";
 import Accordion from "@/components/Accordion";
 import AddCart from "@/components/AddCart";
-import Image from "next/image";
-import Link from "next/link";
 import { products } from "@wix/stores";
-import ProductReviews from "@/components/ProductReviews";
 
 export function SinglePageClient({ product, filteredSimilarProducts }: any) {
   const [selectedColor, setSelectedColor] = useState("");

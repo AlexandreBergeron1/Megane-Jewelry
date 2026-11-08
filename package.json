@@ -23,7 +23,6 @@
     "react-dom": "^18",
     "react-google-recaptcha-v3": "^1.11.0",
     "resend": "^6.32.1",
-    "stripe": "^22.1.1",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
